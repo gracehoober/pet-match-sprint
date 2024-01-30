@@ -2,8 +2,10 @@ import os
 import requests
 
 PETFINDER_API_KEY = os.environ["petfinder_API_key"]
-PETFINDER_SECRET_KET = os.environ["petfinder_secret_key"]
-PETFINDER_API_URL = "https://api.petfinder.com/v2/oauth2/token"
+PETFINDER_SECRET_KEY = os.environ["petfinder_secret_key"]
+
+
+petfinder_api_url = "https://api.petfinder.com/v2/oauth2/token"
 
 
 def update_auth_token():
@@ -11,10 +13,10 @@ def update_auth_token():
 
     data = {"grant_type":"client_credentials"}
     response = requests.post(
-        PETFINDER_API_URL,
+        petfinder_api_url,
         data=data,
-        auth=(PETFINDER_API_KEY, PETFINDER_SECRET_KET)
+        auth=(PETFINDER_API_KEY, PETFINDER_SECRET_KEY)
         )
-    token = response.json()["access_token"]
 
+    token = response.json()["access_token"]
     return token

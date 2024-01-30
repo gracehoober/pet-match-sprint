@@ -1,22 +1,32 @@
-from flask import Flask, request
+import os
+
+from flask import Flask, request, session
 from utils import update_auth_token
 import requests
 
-PETFINDER_AUTH_TOKEN = None
-
 app = Flask(__name__)
 
-########## ROUTES ###########
+app.config['SECRET_KEY'] = os.environ["session_secret_key"]
 
+PETFINDER_AUTH_TOKEN = None
+
+
+
+########## ROUTES ###########
 
 @app.before_request
 def update_credentials():
     """Get auth token from Petfinder and store globally"""
+
     global PETFINDER_AUTH_TOKEN
-    PETFINDER_AUTH_TOKEN = update_auth_token() #TODO: save this is session, g??
+    PETFINDER_AUTH_TOKEN = update_auth_token()
+    session["current_token"] = PETFINDER_AUTH_TOKEN #TODO: do i need to store this in a session for what reason?
+
+    #TODO: save this is session, g??
     # so my idea is the before any route this function will reun and will result in
     # new token being generated
     # is there a way to only generate a token if the token is expired?? limit requests
+
 
 # @app.route("/login", methods=["POST", "GET"])
 # def login():
@@ -42,6 +52,8 @@ def getDogs():
 
 
 # TODO: add in error handling (search term couldnt find something)
+# put a query string in the url and get info out of it
+# send info with API req to petfinder
 @app.get("/search")
 def searchDogs():
     """Handles dog breed search requests
@@ -56,6 +68,7 @@ def searchDogs():
                                  headers={"Authorization":
                                           f"Bearer {PETFINDER_AUTH_TOKEN}"},
                                  )
-    dogs_by_breed = re
+    #TODO: if request fails due to a 401 -> generate a new token and run again
+
     # sending list of dogs back to the front end -> jsonify()??
-    return dogs_by_breed
+    return dogs_by_breed.json()
