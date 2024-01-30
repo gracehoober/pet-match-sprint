@@ -9,11 +9,14 @@ app = Flask(__name__)
 ########## ROUTES ###########
 
 
-@app.before_first_request
+@app.before_request
 def update_credentials():
     """Get auth token from Petfinder and store globally"""
     global PETFINDER_AUTH_TOKEN
-    PETFINDER_AUTH_TOKEN = update_auth_token()
+    PETFINDER_AUTH_TOKEN = update_auth_token() #TODO: save this is session, g??
+    # so my idea is the before any route this function will reun and will result in
+    # new token being generated
+    # is there a way to only generate a token if the token is expired?? limit requests
 
 # @app.route("/login", methods=["POST", "GET"])
 # def login():
@@ -51,7 +54,7 @@ def searchDogs():
     dogs_by_breed = requests.get("https://api.petfinder.com/v2/dogs",
                                  params={"breed": breed},
                                  headers={"Authorization":
-                                          f"Bearer {PETFINDER_ACCESS_TOKEN}"},
+                                          f"Bearer {PETFINDER_AUTH_TOKEN}"},
                                  )
     dogs_by_breed = re
     # sending list of dogs back to the front end -> jsonify()??
