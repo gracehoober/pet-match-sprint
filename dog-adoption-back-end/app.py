@@ -43,12 +43,12 @@ def update_credentials():
 @app.get("/")
 def getDogs():
     """Gets a list of 50 dogs"""
-    return """
-        <html>
-            <body>
-            <h1> Welcome to Fetch </h1>
-        <html>
-        """
+
+    animal = requests.get("https://api.petfinder.com/v2/types/dog",
+                                 params={"limit": 50},
+                                 headers={"Authorization":
+                                          f"Bearer {PETFINDER_AUTH_TOKEN}"},)
+    return animal.json()
 
 
 # TODO: add in error handling (search term couldnt find something)
@@ -56,19 +56,25 @@ def getDogs():
 # send info with API req to petfinder
 @app.get("/search")
 def searchDogs():
-    """Handles dog breed search requests
+    """Handles dog breed search requests and return list of dogs in JSON or
     Example: "/search?breed=germanshepard"
     """
     # getting the search term from the request
-    breed = request.args["breed"]
+    breed = request.params["breed"] or None
 
-    # requesting a list of dogs from the apr
-    dogs_by_breed = requests.get("https://api.petfinder.com/v2/dogs",
+    # requesting a list of dogs from the API
+    dogs_by_breed = requests.get("https://api.petfinder.com/v2/types/dog/",
                                  params={"breed": breed},
                                  headers={"Authorization":
                                           f"Bearer {PETFINDER_AUTH_TOKEN}"},
                                  )
+
+    # if auth token is expired update PETFINDER_AUTH_TOKEN and rerun request
+    if dogs_by_breed.status_code == 401:
+        update_credentials()
+
+
     #TODO: if request fails due to a 401 -> generate a new token and run again
 
-    # sending list of dogs back to the front end -> jsonify()??
+    # sending list of dogs or 404 notfound back to the front end -> jsonify()??
     return dogs_by_breed.json()

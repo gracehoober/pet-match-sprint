@@ -18,5 +18,6 @@ def update_auth_token():
         auth=(PETFINDER_API_KEY, PETFINDER_SECRET_KEY)
         )
 
-    token = response.json()["access_token"]
+    json_response = response.json()
+    token = json_response["access_token"]
     return token
